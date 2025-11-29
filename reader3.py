@@ -208,29 +208,33 @@ def process_epub(epub_path: str, output_dir: str) -> Book:
 
     # Try to find cover image from metadata
     cover_id = None
-    for meta in book.get_metadata('OPF', 'cover'):
+    for meta in book.get_metadata("OPF", "cover"):
         if meta and meta[0]:
             cover_id = meta[0]
             break
-    
+
     # Also check for item with 'cover' in properties or id, or ISBN pattern
     import re
-    isbn_pattern = re.compile(r'^978.*\.(jpg|jpeg)$', re.IGNORECASE)
-    
+
+    isbn_pattern = re.compile(r"^978.*\.(jpg|jpeg)$", re.IGNORECASE)
+
     for item in book.get_items():
         if item.get_type() == ebooklib.ITEM_IMAGE:
             item_id = item.get_id()
             item_name = os.path.basename(item.get_name())
             item_name_lower = item_name.lower()
-            
+
             # Priority 1: Cover ID from metadata
             if cover_id and item_id == cover_id:
                 cover_filename = item_name
             # Priority 2: Filename is exactly "cover.png" or similar
-            elif item_name_lower in ('cover.png', 'cover.jpg', 'cover.jpeg') and not cover_filename:
+            elif (
+                item_name_lower in ("cover.png", "cover.jpg", "cover.jpeg")
+                and not cover_filename
+            ):
                 cover_filename = item_name
             # Priority 3: Filename contains "cover"
-            elif 'cover' in item_name_lower and not cover_filename:
+            elif "cover" in item_name_lower and not cover_filename:
                 cover_filename = item_name
             # Priority 4: ISBN pattern (978*.jpg or 978*.jpeg)
             elif isbn_pattern.match(item_name) and not cover_filename:
@@ -349,9 +353,11 @@ def save_to_pickle(book: Book, output_dir: str):
 
 # --- CLI ---
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     # all books file in /books/
-    for epub_file in ["books/" + f for f in os.listdir("books/") if f.endswith(".epub")]:
+    for epub_file in [
+        "books/" + f for f in os.listdir("books/") if f.endswith(".epub")
+    ]:
         assert os.path.exists(epub_file), "File not found."
         out_dir = os.path.splitext(epub_file)[0] + "_data"
 
