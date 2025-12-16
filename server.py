@@ -16,6 +16,18 @@ templates = Jinja2Templates(directory="templates")
 BOOKS_DIR = "books"
 
 
+class ReaderUnpickler(pickle.Unpickler):
+    """
+    Allow loading pickle files that were created when reader3.py
+    was executed as a script (module name becomes '__main__').
+    """
+
+    def find_class(self, module, name):
+        if module == "__main__":
+            module = "reader3"
+        return super().find_class(module, name)
+
+
 @lru_cache(maxsize=10)
 def load_book_cached(folder_name: str) -> Optional[Book]:
     """
@@ -28,7 +40,7 @@ def load_book_cached(folder_name: str) -> Optional[Book]:
 
     try:
         with open(file_path, "rb") as f:
-            book = pickle.load(f)
+            book = ReaderUnpickler(f).load()
         return book
     except Exception as e:
         print(f"Error loading book {folder_name}: {e}")
