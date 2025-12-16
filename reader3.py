@@ -73,6 +73,11 @@ class Book:
     version: str = "3.0"
 
 
+# Ensure pickles always point to the importable module name, even when run as a script.
+for _cls in (ChapterContent, TOCEntry, BookMetadata, Book):
+    _cls.__module__ = "reader3"
+
+
 # --- Utilities ---
 
 
@@ -351,12 +356,13 @@ def save_to_pickle(book: Book, output_dir: str):
     print(f"Saved structured data to {p_path}")
 
 
+
 # --- CLI ---
 
-if __name__ == "__main__":
-    # all books file in /books/
+def main():
+    """Process all EPUB files in the books/ directory and save pickles."""
     for epub_file in [
-        "books/" + f for f in os.listdir("books/") if f.endswith(".epub")
+        os.path.join("books", f) for f in os.listdir("books/") if f.endswith(".epub")
     ]:
         assert os.path.exists(epub_file), "File not found."
         out_dir = os.path.splitext(epub_file)[0] + "_data"
@@ -369,3 +375,8 @@ if __name__ == "__main__":
         print(f"Physical Files (Spine): {len(book_obj.spine)}")
         print(f"TOC Root Items: {len(book_obj.toc)}")
         print(f"Images extracted: {len(book_obj.images)}")
+
+
+if __name__ == "__main__":
+    # Recommend running as: python -m reader3
+    main()
