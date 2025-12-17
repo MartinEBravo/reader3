@@ -74,8 +74,8 @@ class Book:
 
 
 # Ensure pickles always point to the importable module name, even when run as a script.
-for _cls in (ChapterContent, TOCEntry, BookMetadata, Book):
-    _cls.__module__ = "reader3"
+#for _cls in (ChapterContent, TOCEntry, BookMetadata, Book):
+#   _cls.__module__ = "reader3"
 
 
 # --- Utilities ---
@@ -352,7 +352,8 @@ def process_epub(epub_path: str, output_dir: str) -> Book:
 def save_to_pickle(book: Book, output_dir: str):
     p_path = os.path.join(output_dir, "book.pkl")
     with open(p_path, "wb") as f:
-        pickle.dump(book, f)
+        # Use protocol 4 or higher for better compatibility
+        pickle.dump(book, f, protocol=pickle.HIGHEST_PROTOCOL)
     print(f"Saved structured data to {p_path}")
 
 
